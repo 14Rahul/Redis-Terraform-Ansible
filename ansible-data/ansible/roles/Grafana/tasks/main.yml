@@ -1,0 +1,41 @@
+---
+
+- name: install grafana
+  shell: |
+    wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+    sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+    sudo apt update -y
+    sudo apt install grafana -y
+- name: Start grafana service
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: true
+- name: Copy Service file
+  copy:
+    src: Redis_Golden.json
+    dest: /root/Redis_Golden.json
+    owner: root
+    group: root
+    mode: 0644
+- name: Pause for 3 minutes
+  pause:
+    minutes: 3
+- name: Ensure datasources exist (via API)
+  community.grafana.grafana_datasource:
+    grafana_url: "http://{{hostvars[groups['Grafana'][0]]['inventory_hostname']}}:3000"
+    grafana_user: "{{grafana_username}}"
+    grafana_password: "{{grafana_password}}"
+    name: "prometheus"
+    url: "http://{{hostvars[groups['Prometheous'][0]]['inventory_hostname']}}:9090"
+    ds_type: "prometheus"
+    ds_url: "http://{{hostvars[groups['Prometheous'][0]]['inventory_hostname']}}:9090"
+- name: Import Grafana dashboard foo
+  community.grafana.grafana_dashboard:
+    grafana_url: "http://{{hostvars[groups['Grafana'][0]]['inventory_hostname']}}:3000"
+    url_username: "{{grafana_username}}"
+    url_password: "{{grafana_password}}"
+    state: present
+    commit_message: Updated by ansible
+    overwrite: yes
+    path: /root/Redis_Golden.json

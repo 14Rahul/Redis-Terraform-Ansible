@@ -1,0 +1,6 @@
+---
+
+- name: Start redis service
+  systemd:
+    name: redis
+    state: restarted

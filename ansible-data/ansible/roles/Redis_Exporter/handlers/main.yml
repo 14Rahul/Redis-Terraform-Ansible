@@ -1,0 +1,6 @@
+---
+
+- name: Start redis Exporter service
+  systemd:
+    name: redis_exporter
+    state: restarted

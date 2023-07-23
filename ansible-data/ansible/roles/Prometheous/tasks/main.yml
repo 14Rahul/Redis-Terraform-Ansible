@@ -1,0 +1,63 @@
+---
+
+- name: Create group
+  group:
+    name: prometheus
+    state: present
+- name: Create Users Task
+  user:
+    name: prometheus
+    state: present
+    group: prometheus
+    shell: /sbin/nologin
+    system: true
+- name: ansible create directory 
+  file:
+    path: "{{ item.dest }}"
+    mode: "{{item.mode}}"
+    owner: "{{item.owner}}"
+    group: "{{item.group}}"
+    recurse: true   
+    state: directory
+  loop:
+    - { dest: '/var/lib/prometheus', mode: '0755', owner: 'prometheus', group: 'prometheus' }
+    - { dest: '/etc/prometheus', mode: '0755', owner: 'root', group: 'root' }
+    - { dest: '/etc/prometheus/rules', mode: '0775', owner: 'prometheus', group: 'prometheus'}
+    - { dest: '/etc/prometheus/rules.d', mode: '0775', owner: 'prometheus', group: 'prometheus'}
+    - { dest: '/etc/prometheus/files_sd', mode: '0775', owner: 'prometheus', group: 'prometheus'}
+    - { dest: '/tmp/prometheus', mode: '0775', owner: 'root', group: 'root'}
+- name: Download Prometheus
+  get_url: url={{prom_url}} dest=/tmp/prometheus
+- name: Untar Prometheus
+  unarchive:
+    src: /tmp/prometheus/prometheus-{{prom_version}}.linux-amd64.tar.gz
+    dest: /tmp/prometheus/
+    remote_src: true
+    owner: ubuntu
+    group: ubuntu
+- name: Move files to usr/local/bin
+  shell: |
+    mv /tmp/prometheus/prometheus-{{prom_version}}.linux-amd64/prom* /usr/local/bin/
+    mv /tmp/prometheus/prometheus-{{prom_version}}.linux-amd64/consoles/ /tmp/prometheus/prometheus-{{prom_version}}.linux-amd64/console_libraries/ /etc/prometheus/
+- name: Copy Prometheus yml file
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+- name: Copy Service file
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: 0644
+- name: daemon reload
+  systemd: 
+    daemon_reload: true
+- name: Start prometheus service
+  systemd:
+    name: prometheus
+    state: started
+    enabled: true

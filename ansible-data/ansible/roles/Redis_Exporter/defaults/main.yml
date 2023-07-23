@@ -1,0 +1,5 @@
+---
+
+redis_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+redis_ex_version: 1.18.0
+redis_ex_url: https://github.com/oliver006/redis_exporter/releases/download/v{{redis_ex_version}}/redis_exporter-v{{redis_ex_version}}.linux-amd64.tar.gz

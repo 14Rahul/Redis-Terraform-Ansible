@@ -1,0 +1,96 @@
+---
+
+- name: build-essential
+  apt:
+    name: build-essential
+    state: present
+- name: tcl
+  apt:
+    name: tcl
+    state: present
+- name: Download Redis
+  get_url: url="{{ redis_download_url }}" dest=/tmp
+- name: Untar Redis
+  command: chdir=/tmp creates=redis-{{redis_version}} tar -xzf redis-{{redis_version}}.tar.gz
+- name: Creates Redis directory
+  file:
+    path: "{{ redis_dir }}"
+    owner: root
+    group: root
+    mode: 755
+    state: directory
+- name: Move files to opt/redis
+  shell: cp -r /tmp/redis-{{redis_version}}/* {{ redis_dir }}/
+- name: delete Redis conf
+  shell: rm {{ redis_dir }}/redis.conf
+- name: REDIS | Copy server config
+  template:
+    src: redis7.0.7.conf.j2
+    dest: "{{ redis_dir }}/redis.conf"
+    owner: root
+    group: root
+    mode: 0644
+# - name: Copy Service file
+#   copy:
+#     src: /home/ubuntu/ansible-data/redis{{redis_version}}.conf
+#     dest: "{{ redis_dir }}/redis.conf"
+#     owner: root
+#     group: root
+#     mode: 0644
+# - name: "Curl AWS to get this instance's public IP address"
+#   command: curl http://169.254.169.254/latest/meta-data/public-ipv4
+#   register: ec2_public_ip
+# - name: Edit Redis Conf
+#   lineinfile:
+#     path: "{{ redis_dir }}/redis.conf"
+#     regexp: 'bind 127.0.0.1'
+#     line: "bind {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} 127.0.0.1"
+
+- name: Make Clean
+  command: make distclean
+  args:
+    chdir: /tmp/redis-{{redis_version}}
+- name: Make
+  command: make
+  args:
+    chdir: /tmp/redis-{{redis_version}}
+- name: Make Test
+  command: make test
+  args:
+    chdir: /tmp/redis-{{redis_version}} #/src
+- name: Make Install
+  command: sudo make install
+  args:
+    chdir: /tmp/redis-{{redis_version}}  #/src
+- name: Create user redis
+  user: name=redis system=yes home=/var/lib/redis shell=/bin/false
+- name: Creates directory
+  file:
+    path: /etc/redis
+    state: directory
+- name: Copy Service file
+  copy:
+    src: redis.service
+    dest: /etc/systemd/system/redis.service
+    owner: root
+    group: root
+    mode: 0644
+- name: Creates directory
+  file:
+    path: /var/lib/redis
+    owner: redis
+    group: redis
+    mode: 770
+    state: directory
+- name: Creates directory
+  file:
+    path: "{{ redis_dir }}/logs"
+    owner: redis
+    group: redis
+    mode: 755
+    state: directory
+- name: Start redis service
+  systemd:
+    name: redis
+    state: started
+    enabled: true

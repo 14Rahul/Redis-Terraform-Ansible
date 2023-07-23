@@ -1,0 +1,4 @@
+Host *
+        StrictHostKeyChecking no
+        User ubuntu
+        IdentityFile /home/ubuntu/.ssh/awsdev.pem

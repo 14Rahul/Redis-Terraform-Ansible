@@ -1,0 +1,40 @@
+---
+
+redis_version: 7.0.0 
+redis_dir: /opt/redis
+redis_download_url: http://download.redis.io/releases/redis-{{redis_version}}.tar.gz
+
+# Redis Config Variables
+
+ip_address: "" #
+protected_mode: 'yes'
+requirepass: foobared #
+masterauth: foobared #
+port: 6379
+timeout: 0 #
+pidfile: "/var/run/redis_6379.pid" #
+loglevel: notice
+logfile: "" #
+save: '' #
+stop_writes_on_bgsave_error: 'yes' #
+rdbcompression: 'yes'
+rdbchecksum: 'yes' #
+dbfilename: dump.rdb
+rdb_dir: ./ #
+replica_serve_stale_data: 'yes' #
+repl_ping_replica_period: 10
+repl_timeout: 60
+repl_backlog_size: 1mb #
+repl_backlog_ttl: 3600
+maxclients: 10000
+maxmemory: #
+maxmemory_policy: noeviction # 
+appendonly: 'no'
+cluster_enabled: 'no' #
+cluster_config_file: "nodes_6379.conf" #
+cluster_node_timeout: 15000
+cluster_port: 0 #
+cluster_replica_validity_factor: 10 #
+cluster_migration_barrier: 1
+cluster_require_full_coverage: 'yes'
+cluster_replica_no_failover: 'no'

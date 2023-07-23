@@ -1,0 +1,32 @@
+---
+
+- name: Download Redis Exporter
+  get_url: url={{redis_ex_url}} dest=/tmp
+- name: Untar Redis
+  command: chdir=/tmp creates=redis_exporter-v{{redis_ex_version}}.linux-amd64 tar -xzf redis_exporter-v{{redis_ex_version}}.linux-amd64.tar.gz
+- name: Move files to usr/local/bin
+  shell: cp /tmp/redis_exporter-v{{redis_ex_version}}.linux-amd64/redis_exporter /usr/local/bin/
+# - name: Copy Service file
+#   copy:
+#     src: /home/ubuntu/ansible-data/redis_exporter.service
+#     dest: /etc/systemd/system/redis_exporter.service
+#     owner: root
+#     group: root
+#     mode: 0644
+# - name: Edit Redis Exporter Service file
+#   lineinfile:
+#     path: /etc/systemd/system/redis_exporter.service
+#     regexp: 'redis://127.0.0.1:6379'
+#     line: "ExecStart=/usr/local/bin/redis_exporter -web.listen-address \":9121\" -redis.addr \"redis://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:6379\"  -redis.password \"foobared\" "
+- name: Create Redis Exporter services
+  template:
+    src: redis_exporter.service.j2
+    dest: /etc/systemd/system/redis_exporter.service
+    owner: root
+    group: root
+    mode: 0644  
+- name: Start redis Exporter service
+  systemd:
+    name: redis_exporter
+    state: started
+    enabled: true

@@ -1,0 +1,5 @@
+---
+
+redis_ips: "'{{hostvars[groups['Redis'][0]]['inventory_hostname']}}:9121','{{hostvars[groups['Redis'][1]]['inventory_hostname']}}:9121','{{hostvars[groups['Redis'][2]]['inventory_hostname']}}:9121','{{hostvars[groups['Redis'][3]]['inventory_hostname']}}:9121','{{hostvars[groups['Redis'][4]]['inventory_hostname']}}:9121','{{hostvars[groups['Redis'][5]]['inventory_hostname']}}:9121'"
+prom_version: 2.37.0
+prom_url: https://github.com/prometheus/prometheus/releases/download/v{{prom_version}}/prometheus-{{prom_version}}.linux-amd64.tar.gz

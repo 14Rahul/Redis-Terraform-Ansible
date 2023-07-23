@@ -1,0 +1,27 @@
+---
+
+redis_version: 7.0.2
+redis_dir: /opt/redis
+redis_download_url: http://download.redis.io/releases/redis-{{redis_version}}.tar.gz
+done: "0"
+# Redis Config Variables
+
+ip_address: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+protected_mode: 'yes'
+requirepass: foobared
+masterauth: foobared
+timeout: 20
+pidfile: "{{redis_dir}}/redis.pid"
+logfile: "{{redis_dir}}/logs/redis.log"
+save: '900 1 300 10 60 1000'
+stop_writes_on_bgsave_error: 'no'
+rdbchecksum: 'no'
+rdb_dir: "{{redis_dir}}"
+replica_serve_stale_data: 'no'
+repl_backlog_size: 256mb
+maxmemory: 8589934592
+maxmemory_policy: allkeys-lru
+cluster_enabled: 'yes'
+cluster_config_file: "{{redis_dir}}/nodes_6379.conf"
+cluster_port: 16379
+cluster_replica_validity_factor: 0

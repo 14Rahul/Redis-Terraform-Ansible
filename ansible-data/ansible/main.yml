@@ -1,0 +1,30 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+  - name: Update and upgrade Packages 
+    apt: 
+      upgrade: dist
+      update_cache: yes
+
+- hosts: Redis
+  become: true
+  roles:
+    - Redis_Deploy
+
+- hosts: Redis
+  become: true
+  roles:
+    - Redis_Exporter
+  
+- hosts: Prometheous
+  become: true
+  roles:
+    - Prometheous
+  
+- hosts: Grafana
+  become: true
+  roles:
+    - Grafana
+  
